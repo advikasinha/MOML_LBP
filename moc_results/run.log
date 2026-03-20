@@ -1,0 +1,129 @@
+2026-03-20 20:25:00,165  INFO      ======================================================================
+2026-03-20 20:25:00,165  INFO        MOC-FS  — Multi-Objective Clustering with Feature Sparsity
+2026-03-20 20:25:00,165  INFO        CWRU Bearing Dataset | 12 kHz Drive End
+2026-03-20 20:25:00,165  INFO        pymoo NSGA-II  pop=150  gen=100
+2026-03-20 20:25:00,165  INFO      ======================================================================
+2026-03-20 20:25:00,165  INFO      
+[1] Loading CWRU dataset and extracting features…
+2026-03-20 20:25:00,409  INFO        [Normal] 100_Normal_3.mat                  474 segments
+2026-03-20 20:25:00,530  INFO        [Normal] 97_Normal_0.mat                   238 segments
+2026-03-20 20:25:00,764  INFO        [Normal] 98_Normal_1.mat                   472 segments
+2026-03-20 20:25:01,002  INFO        [Normal] 99_Normal_2.mat                   472 segments
+2026-03-20 20:25:01,063  INFO        [IR]     105_0.mat                         118 segments
+2026-03-20 20:25:01,123  INFO        [IR]     106_1.mat                         119 segments
+2026-03-20 20:25:01,182  INFO        [IR]     107_2.mat                         119 segments
+2026-03-20 20:25:01,242  INFO        [IR]     108_3.mat                         120 segments
+2026-03-20 20:25:01,302  INFO        [IR]     169_0.mat                         118 segments
+2026-03-20 20:25:01,361  INFO        [IR]     170_1.mat                         118 segments
+2026-03-20 20:25:01,420  INFO        [IR]     171_2.mat                         118 segments
+2026-03-20 20:25:01,479  INFO        [IR]     172_3.mat                         118 segments
+2026-03-20 20:25:01,538  INFO        [IR]     209_0.mat                         119 segments
+2026-03-20 20:25:01,597  INFO        [IR]     210_1.mat                         118 segments
+2026-03-20 20:25:01,657  INFO        [IR]     211_2.mat                         118 segments
+2026-03-20 20:25:01,716  INFO        [IR]     212_3.mat                         119 segments
+2026-03-20 20:25:01,775  INFO        [IR]     3001_0.mat                        117 segments
+2026-03-20 20:25:01,834  INFO        [IR]     3002_1.mat                        118 segments
+2026-03-20 20:25:01,893  INFO        [IR]     3003_2.mat                        118 segments
+2026-03-20 20:25:01,951  INFO        [IR]     3004_3.mat                        118 segments
+2026-03-20 20:25:02,011  INFO        [B ]     118_0.mat                         119 segments
+2026-03-20 20:25:02,070  INFO        [B ]     119_1.mat                         118 segments
+2026-03-20 20:25:02,129  INFO        [B ]     120_2.mat                         118 segments
+2026-03-20 20:25:02,188  INFO        [B ]     121_3.mat                         118 segments
+2026-03-20 20:25:02,247  INFO        [B ]     185_0.mat                         118 segments
+2026-03-20 20:25:02,307  INFO        [B ]     186_1.mat                         119 segments
+2026-03-20 20:25:02,367  INFO        [B ]     187_2.mat                         119 segments
+2026-03-20 20:25:02,426  INFO        [B ]     188_3.mat                         119 segments
+2026-03-20 20:25:02,487  INFO        [B ]     222_0.mat                         119 segments
+2026-03-20 20:25:02,546  INFO        [B ]     223_1.mat                         118 segments
+2026-03-20 20:25:02,606  INFO        [B ]     224_2.mat                         119 segments
+2026-03-20 20:25:02,665  INFO        [B ]     225_3.mat                         119 segments
+2026-03-20 20:25:02,724  INFO        [B ]     3005_0.mat                        117 segments
+2026-03-20 20:25:02,783  INFO        [B ]     3006_1.mat                        118 segments
+2026-03-20 20:25:02,842  INFO        [B ]     3007_2.mat                        118 segments
+2026-03-20 20:25:02,901  INFO        [B ]     3008_3.mat                        118 segments
+2026-03-20 20:25:02,961  INFO        [OR]     156_0.mat                         119 segments
+2026-03-20 20:25:03,020  INFO        [OR]     158_1.mat                         119 segments
+2026-03-20 20:25:03,080  INFO        [OR]     159_2.mat                         119 segments
+2026-03-20 20:25:03,139  INFO        [OR]     160_3.mat                         119 segments
+2026-03-20 20:25:03,199  INFO        [OR]     144_0.mat                         119 segments
+2026-03-20 20:25:03,258  INFO        [OR]     145_1.mat                         118 segments
+2026-03-20 20:25:03,316  INFO        [OR]     146_2.mat                         118 segments
+2026-03-20 20:25:03,375  INFO        [OR]     147_3.mat                         119 segments
+2026-03-20 20:25:03,434  INFO        [OR]     130@6_0.mat                       119 segments
+2026-03-20 20:25:03,494  INFO        [OR]     131@6_1.mat                       119 segments
+2026-03-20 20:25:03,552  INFO        [OR]     132@6_2.mat                       118 segments
+2026-03-20 20:25:03,611  INFO        [OR]     133@6_3.mat                       119 segments
+2026-03-20 20:25:03,670  INFO        [OR]     197@6_0.mat                       118 segments
+2026-03-20 20:25:03,729  INFO        [OR]     198@6_1.mat                       119 segments
+2026-03-20 20:25:03,788  INFO        [OR]     199@6_2.mat                       118 segments
+2026-03-20 20:25:03,847  INFO        [OR]     200@6_3.mat                       119 segments
+2026-03-20 20:25:03,906  INFO        [OR]     258_0.mat                         118 segments
+2026-03-20 20:25:03,965  INFO        [OR]     259_1.mat                         119 segments
+2026-03-20 20:25:04,024  INFO        [OR]     260_2.mat                         119 segments
+2026-03-20 20:25:04,084  INFO        [OR]     261_3.mat                         118 segments
+2026-03-20 20:25:04,142  INFO        [OR]     246_0.mat                         118 segments
+2026-03-20 20:25:04,202  INFO        [OR]     247_1.mat                         119 segments
+2026-03-20 20:25:04,261  INFO        [OR]     248_2.mat                         119 segments
+2026-03-20 20:25:04,321  INFO        [OR]     249_3.mat                         119 segments
+2026-03-20 20:25:04,380  INFO        [OR]     234_0.mat                         119 segments
+2026-03-20 20:25:04,439  INFO        [OR]     235_1.mat                         119 segments
+2026-03-20 20:25:04,498  INFO        [OR]     236_2.mat                         119 segments
+2026-03-20 20:25:04,557  INFO        [OR]     237_3.mat                         119 segments
+2026-03-20 20:25:04,557  INFO      Loaded 64 files → 8767 segments × 7 raw features.
+2026-03-20 20:25:04,558  INFO        Class 0 (Normal): 1656 segments
+2026-03-20 20:25:04,558  INFO        Class 1 (Inner Race): 1893 segments
+2026-03-20 20:25:04,558  INFO        Class 2 (Ball): 1894 segments
+2026-03-20 20:25:04,558  INFO        Class 3 (Outer Race): 3324 segments
+2026-03-20 20:25:04,559  INFO      Standardised feature matrix: (8767, 7)
+2026-03-20 20:25:04,559  INFO      
+[2] Building kNN graph (k=10)…
+2026-03-20 20:25:04,743  INFO        kNN graph built in 0.18 s.
+2026-03-20 20:25:04,744  INFO      
+[3] Running NSGA-II optimisation…
+2026-03-20 20:25:04,746  INFO        Hybrid init: KMeans-seeded (50 chromosomes)…
+2026-03-20 20:25:05,752  INFO        Hybrid init: data-point seeded (50 chromosomes)…
+2026-03-20 20:25:05,753  INFO        Hybrid init: pure random (50 chromosomes)…
+2026-03-20 20:25:20,063  INFO      Optimisation finished in 15.3 s (0.3 min).
+2026-03-20 20:25:20,063  INFO      
+[4] Analysing Pareto front…
+2026-03-20 20:25:20,063  INFO        Pareto-optimal solutions : 150
+2026-03-20 20:25:20,063  INFO        f1 Compactness   : [0.0061, 0.1386]
+2026-03-20 20:25:20,063  INFO        f2 Connectedness : [0.0000, 0.1428]
+2026-03-20 20:25:20,063  INFO        f3 Simplicity    : [1.0, 3.0]
+2026-03-20 20:25:20,063  INFO        Knee point [idx=95]: K=9, active=['Std Dev']
+2026-03-20 20:25:20,063  INFO      
+[5] Computing ARI / Silhouette for all 150 Pareto solutions…
+2026-03-20 20:25:49,909  INFO        ARI   — mean 0.1137 | max 0.3014 | knee 0.0323
+2026-03-20 20:25:49,909  INFO        Sil   — mean 0.6714 | max 0.8288 | knee 0.6677
+2026-03-20 20:25:49,909  INFO      
+  'Simple'  solution [idx=5]: K=4, n_feat=2, ARI=0.3014, active=['RMS', 'Spectral Centroid']
+2026-03-20 20:25:49,910  INFO        'Compact' solution [idx=1]: K=8, n_feat=1, ARI=0.2473, active=['Spectral Centroid']
+2026-03-20 20:25:49,910  INFO      
+[6] Generating visualisations…
+2026-03-20 20:25:50,116  INFO        Saved: moc_results/01_pareto_3d.png
+2026-03-20 20:25:50,234  INFO        Saved: moc_results/02_feature_importance.png
+2026-03-20 20:25:50,624  INFO        Saved: moc_results/03_cluster_map_simple_pca.png
+2026-03-20 20:25:55,507  INFO        Saved: moc_results/04_cluster_map_compact_tsne.png
+2026-03-20 20:25:55,647  INFO        Saved: moc_results/05_decision_advantage.png
+2026-03-20 20:25:55,648  INFO        Summary saved: moc_results/summary.json
+2026-03-20 20:25:55,648  INFO      
+======================================================================
+2026-03-20 20:25:55,648  INFO        FINAL RESULTS
+2026-03-20 20:25:55,648  INFO      ======================================================================
+2026-03-20 20:25:55,648  INFO        Segments  : 8767 × 7 features
+2026-03-20 20:25:55,648  INFO        Pareto    : 150 solutions
+2026-03-20 20:25:55,648  INFO        Best ARI  : 0.3014
+2026-03-20 20:25:55,648  INFO        Best Sil  : 0.8288
+2026-03-20 20:25:55,648  INFO        Knee ARI  : 0.0323  active=['Std Dev']
+2026-03-20 20:25:55,648  INFO      
+2026-03-20 20:25:55,648  INFO        DECISION-MAKING ADVANTAGE
+2026-03-20 20:25:55,648  INFO        ┌─────────────────────────────────────────────────────────
+2026-03-20 20:25:55,648  INFO        │  Simple  (2 feat)  ARI=0.3014  → ['RMS', 'Spectral Centroid']
+2026-03-20 20:25:55,648  INFO        │  Use for: low-cost sensor deployments, edge devices
+2026-03-20 20:25:55,648  INFO        ├─────────────────────────────────────────────────────────
+2026-03-20 20:25:55,648  INFO        │  Compact (1 feat)  ARI=0.2473  → ['Spectral Centroid']
+2026-03-20 20:25:55,648  INFO        │  Use for: deep root-cause analysis, full-sensor rigs
+2026-03-20 20:25:55,648  INFO        └─────────────────────────────────────────────────────────
+2026-03-20 20:25:55,648  INFO        Total runtime : 55.5 s (0.9 min)
+2026-03-20 20:25:55,648  INFO        Results dir   : /root/moc_results
+2026-03-20 20:25:55,648  INFO      ======================================================================
