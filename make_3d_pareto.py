@@ -190,75 +190,67 @@ def make_rotating_gif(F, X, ari, sil, n_active, out_path: str,
                       n_frames: int = 120, fps: int = 24):
     """
     360° rotation GIF.  Each frame steps the azimuth by 3°.
-    Points are coloured by ARI; knee (red ◆) and best-ARI (gold ★) are marked.
+    Points are coloured by ARI; knee (red ◆) and best-ARI (gold ■) are marked.
+    Colorbar is created ONCE before the animation loop to avoid frame corruption.
     """
-    ki        = knee_point(F)
-    best_i    = int(np.argmax(ari))
+    ki     = knee_point(F)
+    best_i = int(np.argmax(ari))
 
-    # Colour map: ARI → RdYlGn
-    norm_ari  = (ari - ari.min()) / (ari.max() - ari.min() + 1e-12)
-    colours   = cm.RdYlGn(norm_ari)
+    norm_ari = (ari - ari.min()) / (ari.max() - ari.min() + 1e-12)
+    colours  = cm.RdYlGn(norm_ari)
+    sizes    = 25 + 15 * (n_active - n_active.min())
 
-    # Size by n_active (more features → slightly larger dot)
-    sizes = 25 + 15 * (n_active - n_active.min())
+    # Fixed axis limits so the view doesn't jump between frames
+    xlim = (F[:, 0].min(), F[:, 0].max())
+    ylim = (F[:, 1].min(), F[:, 1].max())
+    zlim = (F[:, 2].min(), F[:, 2].max())
 
     fig = plt.figure(figsize=(10, 8), facecolor="white")
     ax  = fig.add_subplot(111, projection="3d", facecolor="white")
 
-    def draw_frame(az):
+    # ── Colorbar created ONCE outside the animation loop ─────────────────────
+    sm = plt.cm.ScalarMappable(
+        cmap="RdYlGn",
+        norm=plt.Normalize(vmin=float(ari.min()), vmax=float(ari.max())),
+    )
+    sm.set_array([])
+    cbar = fig.colorbar(sm, ax=ax, shrink=0.45, pad=0.08, aspect=20)
+    cbar.set_label("ARI", fontsize=9)
+
+    azimuths = np.linspace(0, 360, n_frames, endpoint=False)
+
+    def draw_frame(frame):
         ax.cla()
         ax.set_facecolor("white")
 
-        # All Pareto solutions
-        ax.scatter(
-            F[:, 0], F[:, 1], F[:, 2],
-            c=colours, s=sizes, alpha=0.80, edgecolors="none", depthshade=True,
-        )
+        ax.scatter(F[:, 0], F[:, 1], F[:, 2],
+                   c=colours, s=sizes, alpha=0.80,
+                   edgecolors="none", depthshade=True)
 
-        # Knee point
-        ax.scatter(
-            F[ki, 0], F[ki, 1], F[ki, 2],
-            color="red", s=220, marker="D", zorder=10,
-            label=f"Knee (ARI={ari[ki]:.3f})",
-        )
+        ax.scatter(F[ki, 0], F[ki, 1], F[ki, 2],
+                   color="red", s=220, marker="D", zorder=10,
+                   label=f"Knee (ARI={ari[ki]:.3f})")
 
-        # Best ARI
-        ax.scatter(
-            F[best_i, 0], F[best_i, 1], F[best_i, 2],
-            color="gold", s=280, marker="*", zorder=11,
-            edgecolors="darkorange", linewidths=1.2,
-            label=f"Best ARI={ari[best_i]:.3f} ({', '.join(active_features(X[best_i]))})",
-        )
+        ax.scatter(F[best_i, 0], F[best_i, 1], F[best_i, 2],
+                   color="gold", s=220, marker="s", zorder=11,
+                   edgecolors="darkorange", linewidths=1.2,
+                   label=f"Best ARI={ari[best_i]:.3f}")
 
         ax.set_xlabel("f1  Compactness", fontsize=9, labelpad=6)
         ax.set_ylabel("f2  Connectedness", fontsize=9, labelpad=6)
         ax.set_zlabel("f3  Simplicity", fontsize=9, labelpad=6)
+        ax.set_xlim(*xlim); ax.set_ylim(*ylim); ax.set_zlim(*zlim)
         ax.set_title(
             "MOC-FS Pareto Front — CWRU Bearing Faults\n"
             "(colour = ARI, size = # active features)",
             fontsize=11, fontweight="bold",
         )
         ax.legend(loc="upper left", fontsize=8, framealpha=0.85)
-        ax.view_init(elev=22, azim=az)
+        ax.view_init(elev=22, azim=azimuths[frame])
 
-        # Colourbar (drawn once per frame — lightweight since it's 120 frames)
-        sm = plt.cm.ScalarMappable(cmap="RdYlGn",
-                                    norm=plt.Normalize(vmin=ari.min(), vmax=ari.max()))
-        sm.set_array([])
-        cbar = fig.colorbar(sm, ax=ax, shrink=0.45, pad=0.05, aspect=20)
-        cbar.set_label("ARI", fontsize=9)
-
-    # Build animation
-    azimuths = np.linspace(0, 360, n_frames, endpoint=False)
-    anim = FuncAnimation(
-        fig,
-        lambda frame: draw_frame(azimuths[frame]),
-        frames=n_frames,
-        interval=1000 / fps,
-    )
-
-    writer = PillowWriter(fps=fps)
-    anim.save(out_path, writer=writer, dpi=110)
+    anim = FuncAnimation(fig, draw_frame, frames=n_frames,
+                         interval=1000 / fps, blit=False)
+    anim.save(out_path, writer=PillowWriter(fps=fps), dpi=110)
     plt.close(fig)
     print(f"  Saved rotating GIF : {out_path}  ({n_frames} frames @ {fps} fps)")
 
