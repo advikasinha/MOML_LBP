@@ -1,6 +1,6 @@
 # MOC-FS v2 — Insights & Analysis
 ## Fixed Pipeline: Load-Normalised · Class-Balanced · Severity-Aware
-### Run Date: 2026-03-21 | GPU: NVIDIA RTX 5090 (32 GB) | Runtime: 120 s
+### Run Date: 2026-03-21 | GPU: NVIDIA RTX 5090 (32 GB) | Runtime: 125 s
 
 ---
 
@@ -13,12 +13,15 @@ fault-severity sub-structure that the coarse 4-class labels had been hiding.
 |---|---|---|---|
 | 4-class ARI (max) | 0.3014 | **0.4420** | **+47 %** |
 | 16-class ARI (max) | — | **0.5812** | new metric |
-| Silhouette (max) | 0.8288 | **0.8380** | +1 % |
+| Silhouette (max) | 0.8288 | **0.8377** | +1 % |
 | Pareto solutions | 150 | **200** | denser front |
-| Best solution | 2 features | **1 feature (SC)** | simpler & better |
-| NSGA-II runtime | 55 s | **30 s** ¹ | faster on clean data |
+| Best-ARI feature | RMS + SC (2 feat) | **SpectCent (1 feat)** | simpler & better |
+| NSGA-II runtime | 55 s | **34.4 s** | faster on clean data |
 
-¹ Optimisation step only; total pipeline (load + balance + validate + plots) = 120 s.
+> **Note on two analysis passes**: The run.log step [5] reports the "simple" and
+> "compact" labelled solutions (min-f3 with best ARI → RMS, K=10, ARI=0.3595).
+> The post-hoc per-solution evaluation (pareto_ari.npy) covers all 200 solutions
+> exhaustively and is the source for all ARI/Sil values in this document.
 
 ---
 
@@ -27,9 +30,8 @@ fault-severity sub-structure that the coarse 4-class labels had been hiding.
 ### FIX-1 — Per-Load-Condition Normalisation (dominant fix)
 
 **The problem**: The CWRU bearing is tested under 4 motor loads: 0 HP, 1 HP,
-2 HP, 3 HP (corresponding to ~1797, 1772, 1750, 1730 RPM). Higher load means
-the shaft spins more slowly under torque, which increases vibration *amplitude*
-across the board — for healthy **and** faulty bearings alike.
+2 HP, 3 HP (corresponding to ~1797, 1772, 1750, 1730 RPM). Higher load increases
+vibration amplitude across the board — for healthy **and** faulty bearings alike.
 
 When v1 fitted a single `StandardScaler` on the entire dataset:
 
@@ -40,25 +42,15 @@ Inner Race @ 0 HP:     RMS       ≈ 0.08 g  → z-score ≈ +0.25  (looks mild)
 ```
 
 A Normal bearing at high load *overlapped* with a mildly faulty bearing at low
-load. The algorithm was trying to cluster fault signatures through a fog of
-operating-condition noise.
+load. The algorithm was clustering through load-condition noise.
 
-**The fix**: Fit a separate `StandardScaler` *within* each load condition, then
+**The fix**: Fit a separate `StandardScaler` within each load condition, then
 merge. Now every Normal window maps to z ≈ 0 regardless of load, and fault
-deviations are measured *relative to normal at that operating point*:
+deviations are measured *relative to normal at that operating point*.
 
-```
-Load 0 HP Normal:  z = 0         Load 3 HP Normal:  z = 0
-Load 0 HP IR:      z >> 0        Load 3 HP IR:      z >> 0  (consistent!)
-```
-
-The load-condition axis of variation is eliminated. The algorithm now sees only
-fault signatures.
-
-**Quantified impact**: This single fix is responsible for the majority of the
-ARI improvement. Spectral Centroid, which was already the dominant feature,
-becomes *dramatically* more discriminative because the frequency shift caused
-by faults is not masked by RPM-induced centroid drift across load conditions.
+**Quantified impact**: Primary driver of ARI improvement. After load
+normalisation, fault-induced frequency shifts (Spectral Centroid) become the
+dominant discriminant instead of amplitude features confounded by load.
 
 ---
 
@@ -74,40 +66,29 @@ by faults is not masked by RPM-induced centroid drift across load conditions.
 | **Outer Race** | **3,324** | **37.9 %** |
 
 OR fault data is ~2× other classes because it was recorded at 3 mounting
-positions (6 hr, 3 hr, 12 hr on the outer race), giving 3× as many files.
-This means:
+positions (@3, @6, @12 on the outer race), giving 3× as many files.
+The kNN graph (k=10) is more likely to contain OR neighbours by chance,
+so f2 (Connectedness) rewards clustering that favours OR boundaries.
 
-- The kNN graph (k=10) for any point is more likely to contain OR neighbours
-  simply by chance, so f2 (Connectedness) rewards clustering that favours OR
-  boundaries.
-- The algorithm systematically produces clusters with large OR components.
-
-**The fix**: Random undersampling of OR to match the mean fault-class count
-(~1,774 segments). Result:
+**The fix**: Random undersampling of OR to match the median fault-class count
+(1,893 segments). Result:
 
 | Class | Balanced | % |
 |---|---|---|
-| Normal | 1,656 | 29.2 % |
-| Inner Race | 1,774 | 31.2 % |
-| Ball | 1,774 | 31.2 % |
-| Outer Race | 474 | 8.4 % |
-
-> **Why is OR so small after balancing?**
-> OR was severely over-represented (3 mounting positions × 4 fault sizes × 4
-> loads = up to 48 files vs 16 for IR/Ball). After balancing to the *median*
-> class count (1,774), only the least-redundant OR recordings are retained.
-> The total dataset shrinks from 8,767 → **5,678 segments**.
+| Normal | 1,656 | 22.6 % |
+| Inner Race | 1,893 | 25.8 % |
+| Ball | 1,893 | 25.8 % |
+| Outer Race | **1,893** | 25.8 % |
+| **Total** | **7,335** | 100 % |
 
 ---
 
 ### FIX-3 — Fault-Severity Sub-Classes (reveals hidden structure)
 
 **The problem**: The 4-class ground-truth label (Normal / IR / Ball / OR) treats
-a 7 mil (0.007") fault the same as a 28 mil (0.028") fault, even though they
-produce wildly different vibration signatures. A small fault is early-stage,
-impulsive, and kurtosis-dominated. A large fault is late-stage, periodic, and
-RMS/centroid-dominated. ARI measured against the 4-class label *penalises* the
-algorithm for discovering this sub-structure.
+a 7 mil fault the same as a 28 mil fault, even though they produce fundamentally
+different vibration signatures. ARI against the 4-class label *penalises*
+the algorithm for discovering severity sub-structure.
 
 **The fix**: Build a **16-class label** (fault_type × fault_size):
 
@@ -116,12 +97,12 @@ algorithm for discovering this sub-structure.
 | 0 | Normal |
 | 1–4 | IR fault at 7/14/21/28 mil |
 | 5–8 | Ball fault at 7/14/21/28 mil |
-| 9–12 | OR fault at 7/14/21 mil (28 mil not in dataset) |
+| 9–11 | OR fault at 7/14/21 mil (28 mil not in dataset) |
 
-v2 found **10 distinct severity classes** with data. Measuring ARI against this
-label gives **0.5812** — showing that the discovered clusters align more with
-fault *type+severity* than with fault type alone. The algorithm is
-**discovering maintenance-relevant severity sub-structure without any labels**.
+v2 found **12 distinct severity classes** with data. Measuring ARI against this
+label gives **0.5812** — the discovered clusters align more with fault
+*type+severity* than fault type alone. The algorithm discovers maintenance-relevant
+severity sub-structure without any labels.
 
 ---
 
@@ -129,20 +110,12 @@ fault *type+severity* than with fault type alone. The algorithm is
 
 | Property | Value |
 |---|---|
-| Total balanced segments | **5,678** |
-| Features | 7 |
+| Total balanced segments | **7,335** |
+| Features | 7 (RMS, Std, Kurt, Crest, Peak2Peak, Skew, SpectCent) |
 | Window size | 1,024 samples |
 | Sampling rate | 12,000 Hz |
-| Load conditions | 4 (0/1/2/3 HP), balanced within class |
-| Distinct severity classes | 10 (out of possible 13) |
-
-### Load condition distribution (balanced data)
-| Load | Segments | % |
-|---|---|---|
-| 0 HP (1797 RPM) | 1,236 | 21.8 % |
-| 1 HP (1772 RPM) | 1,479 | 26.0 % |
-| 2 HP (1750 RPM) | 1,478 | 26.0 % |
-| 3 HP (1730 RPM) | 1,485 | 26.2 % |
+| Load conditions | 4 (0/1/2/3 HP), normalised within class |
+| Distinct severity classes | 12 (out of possible 13) |
 
 ---
 
@@ -156,43 +129,39 @@ fault *type+severity* than with fault type alone. The algorithm is
 | Crossover | SBX (η=15) + 1-pt mask | same |
 | Mutation | PM (η=20) + bit-flip (p=0.15) + structural (p=0.05) | same |
 | kNN graph k | 10, ball-tree, all cores | same |
-| Optimisation time | **30.0 s** | faster (cleaner data = faster convergence) |
+| Optimisation time | **34.4 s** | faster (cleaner data = faster convergence) |
 
-### Population snapshots (history/)
-Saved at generations: 1, 5, 10, 20, 35, 50, 75, 100, 150, 200.
-Use `history/gen_XXXX.npz` for the population-evolution animation.
+Population snapshots saved at generations: 1, 5, 10, 20, 35, 50, 75, 100, 150, 200.
 
 ---
 
 ## 4. Convergence Analysis
 
-### Best-objective trajectory
+### Best-objective trajectory (from gen_stats.json)
 
-| Generation | Best f1 (Compact) | Best f2 (Connect) | Best f3 (Simple) | Mean f1 |
+| Generation | Best f1 (Compact) | Mean f1 | Best f3 (Simple) | Mean f3 |
 |---|---|---|---|---|
-| 1 | 0.028056 | 0.000000 | 2.0 | 1.58060 |
-| 5 | 0.012640 | 0.000000 | 1.0 | 0.18136 |
-| 10 | 0.011979 | 0.000000 | 1.0 | 0.07515 |
-| 20 | 0.007078 | 0.000000 | 1.0 | 0.05688 |
-| 50 | 0.005615 | 0.000000 | 1.0 | 0.02788 |
-| 100 | 0.003737 | 0.000000 | 1.0 | 0.02083 |
-| 150 | 0.003601 | 0.000000 | 1.0 | 0.01838 |
-| 200 | **0.003557** | 0.000000 | 1.0 | 0.01505 |
+| 1 | 0.042096 | 1.59059 | 2.0 | 3.595 |
+| 5 | 0.019999 | 0.31739 | 1.0 | 2.605 |
+| 10 | 0.019999 | 0.22528 | 1.0 | 2.060 |
+| 20 | 0.013526 | 0.09704 | 1.0 | 1.740 |
+| 50 | 0.009296 | 0.06855 | 1.0 | 1.580 |
+| 100 | 0.008520 | 0.05613 | 1.0 | 1.485 |
+| 150 | 0.007050 | 0.05133 | 1.0 | 1.390 |
+| 200 | **0.006850** | 0.03448 | 1.0 | 1.310 |
 
 ### Key convergence events
 
-- **By gen 5**: Best f2 = 0 and best f3 = 1 are already achieved. The algorithm
-  immediately finds that single-feature solutions can achieve perfect kNN
-  coherence (0 cross-boundary neighbours). This is a significant finding —
-  **one feature is enough for perfectly connected clusters**.
-- **Gen 1→20**: Mean f1 drops 28× (from 1.58 → 0.057). The population rapidly
-  collapses from random chaos to the Pareto-efficient region. This is the
-  KMeans-seeded initialisation paying off.
-- **Gen 20→200**: Mean f1 continues to decrease steadily (0.057 → 0.015) as
-  the algorithm refines centroid positions. Best f1 improves 2× (0.028 → 0.0036).
-- **No saturation**: Best f1 is still decreasing at gen 200 (0.003601 →
-  0.003557), suggesting that more generations would yield marginal gains.
-  The front is fully dense but the compact extreme can still be improved.
+- **By gen 2**: Best f3 = 1 already achieved — a 1-feature solution immediately
+  achieves good kNN coherence.
+- **Gen 1→20**: Mean f1 drops 16× (1.59 → 0.097). KMeans-seeded initialisation
+  drives rapid population collapse into the efficient region.
+- **Gen 20→200**: Mean f1 continues declining (0.097 → 0.035); best f1 improves
+  2× (0.042 → 0.007). Fine centroid refinement.
+- **Mean f3 declining**: Population converges from mean 3.6 features → 1.3
+  features over 200 generations, confirming that simpler solutions dominate.
+- **No saturation at gen 200**: Best f1 still improving; more generations would
+  yield marginal compactness gains.
 
 ---
 
@@ -202,91 +171,96 @@ Use `history/gen_XXXX.npz` for the population-evolution animation.
 
 | Objective | Min | Max | Interpretation |
 |---|---|---|---|
-| f1 Compactness | **0.003557** | 0.095665 | 27× spread; tight vs loose clusters |
-| f2 Connectedness | **0.000000** | 0.069760 | Many solutions have *perfect* kNN coherence |
+| f1 Compactness | **0.0036** | 0.0957 | 27× spread; tight vs loose clusters |
+| f2 Connectedness | **0.0000** | 0.0698 | 4 solutions achieve perfect kNN coherence |
 | f3 Simplicity | **1** feature | 3 features | Front spans 3 feature-count levels |
-
-### f2 = 0: what does perfect connectedness mean?
-
-184 out of 200 Pareto solutions (92 %) achieve f2 = 0, meaning **every point's
-10 nearest neighbours are in the same cluster**. This is only possible when the
-clusters are so well-separated in the active feature subspace that no boundary
-ambiguity exists. After load normalisation, the fault signatures are
-geometrically clean enough for this to happen regularly.
 
 ### K (cluster count) distribution
 
 | K | Solutions | Mechanical interpretation |
 |---|---|---|
-| 3 | 2 | Coarse: ~3 fault types (excluding Normal) |
+| 3 | 2 | Coarse: ~3 fault type groups |
 | 4 | 22 | Natural: 4 fault classes |
-| 6 | 20 | Sub-types: severity pairs beginning to separate |
-| 7 | 45 | **Most common** — 4 classes × severity gradient |
+| 6 | 20 | Severity pairs beginning to separate |
+| 7 | 45 | **Most common** — 4 classes × early/late severity + Normal |
 | 8 | 5 | Fine-grained severity |
 | 9 | 63 | **Second most common** — deep severity sub-clustering |
 | 10 | 43 | Maximum granularity |
 
-The bimodal distribution at K=7 and K=9 is mechanically meaningful. Seven
-clusters maps naturally to 3 fault types × 2 severity groups (early/late stage)
-+ Normal. Nine clusters approaches the 10 distinct fault-type×severity classes
-present in the data.
+Bimodal at K=7 and K=9: K=7 maps to 3 fault types × 2 severity groups + Normal;
+K=9 approaches the 12 distinct fault-type×severity classes present in the data.
 
 ### Solutions by feature count
 
-| # Features | Solutions | 4-cls ARI max | 4-cls ARI mean | 16-cls ARI max | Sil max |
-|---|---|---|---|---|---|
-| **1** | 184 | **0.4420** | 0.1739 | **0.5812** | **0.8380** |
-| **2** | 12 | 0.1356 | 0.1290 | 0.2438 | 0.7827 |
-| **3** | 4 | 0.4294 | 0.4294 | 0.3895 | 0.7917 |
+| # Features | Solutions | Best 4-cls ARI | Best 16-cls ARI | Best Sil |
+|---|---|---|---|---|
+| **1** | 184 | **0.4420** (SpectCent) | **0.5812** (Skew) | **0.8377** |
+| **2** | 12 | 0.1356 | 0.2438 | 0.7827 |
+| **3** | 4 | 0.4294 | 0.3895 | 0.7917 |
 
-> **Critical insight**: 1-feature solutions dominate the Pareto front (92 %).
-> Adding a second feature consistently *hurts* performance. This is not a bug —
-> it is the **curse of dimensionality** in action: adding features to an already
-> well-separated 1-D space dilutes the cluster density and increases intra-cluster
-> distance more than it helps inter-cluster separation. For CWRU bearing data
-> after load normalisation, **one frequency-domain feature is sufficient**.
+1-feature solutions dominate (92%). Adding a second feature consistently hurts —
+the curse of dimensionality in a post-normalisation clean feature space.
+
+### Feature usage across all 200 Pareto solutions
+
+| Feature | Solutions | Role |
+|---|---|---|
+| **Skewness** | **150** | Dominant by count — waveform asymmetry from fault impacts |
+| **RMS** | 64 | Compact solutions — total energy for severity sizing |
+| **Spectral Centroid** | 6 | Best-ARI solutions — fault-frequency shift |
+| Std Dev, Kurt, Crest, Peak2Peak | 0 | Never selected |
+
+Three features, three different objectives. No single feature wins everything.
 
 ---
 
-## 6. The Winning Feature: Spectral Centroid
+## 6. The Three Feature Winners — What Each Captures
 
-The best-ARI solution uses **only Spectral Centroid** (K=3, ARI=0.4420,
-Silhouette=0.8377).
+### Spectral Centroid → Best 4-class ARI (0.4420, K=3)
 
-### Why Spectral Centroid alone?
+Spectral Centroid is the frequency-weighted centre of mass of the spectrum (Hz).
+Each fault type excites energy at its characteristic frequency, pulling the
+centroid downward from the healthy broadband baseline:
 
-Spectral Centroid is the frequency-weighted centre of mass of the vibration
-power spectrum (in Hz). For CWRU bearings at ~1750 RPM:
-
-| Fault | Dominant frequency | Centroid shift |
+| Fault | Characteristic freq (@ 1750 RPM) | Centroid shift |
 |---|---|---|
-| **Normal** | Broadband shaft harmonics | ~800–1200 Hz |
-| **Inner Race** | BPFI = 158 Hz + sidebands | Centroid pulls toward 150–400 Hz |
-| **Ball** | BSF = 69 Hz + harmonics | Centroid pulls toward 80–250 Hz |
-| **Outer Race** | BPFO = 105 Hz (sharp, periodic) | Centroid pulls toward 100–300 Hz |
+| **Normal** | Broadband shaft harmonics | High (~800–1200 Hz) |
+| **Inner Race** | BPFI = 158 Hz + sidebands | Toward 150–400 Hz |
+| **Ball** | BSF = 69 Hz + harmonics | Toward 80–250 Hz |
+| **Outer Race** | BPFO = 105 Hz (periodic) | Toward 100–300 Hz |
 
-After **load normalisation**, the RPM-induced centroid drift is removed
-(RPM differences of 1797→1730 only shift centroid by ~30 Hz, which used to
-be absorbed by the raw scaler but now is normalised within each load condition).
-What remains is the fault-induced resonance shift — and that shift is large
-(hundreds of Hz) and consistent. One feature is enough.
+After load normalisation eliminates the RPM-induced centroid drift (~30 Hz),
+the fault-induced shift (hundreds of Hz) dominates. K=3 perfectly separates
+Normal (high centroid) from the two low-frequency fault groups. IR and Ball
+merge because BPFI and BSF both pull centroid downward — correct physics, not
+a flaw.
 
-### The 3-cluster (K=3) structure of the best solution
+### Skewness → Best 16-class ARI (0.5812, K=9)
 
-With K=3 and 4 true classes, one cluster must split or merge:
-- **Cluster 0**: Low centroid → Inner Race + Ball (both shift centroid downward)
-- **Cluster 1**: Mid-low centroid → Outer Race (BPFO is between BSF and BPFI)
-- **Cluster 2**: High centroid → Normal (broadband, centroid stays high)
+Skewness measures waveform asymmetry (3rd standardised moment). A healthy
+bearing has near-symmetric vibration (Skew ≈ 0). Fault-induced rolling-element
+impacts create one-sided spikes — sharp deceleration on defect contact → positive
+impulse. The magnitude scales with spall size and Hertzian contact force: larger
+defect = stronger asymmetric impact = higher skewness.
 
-The IR-Ball merger is the primary reason ARI cannot reach 1.0 with 1 feature:
-both IR and Ball faults pull energy toward lower frequencies, making them
-spectrally similar at 7 mil severity. This is correct physics.
+With K=9, skewness stratifies fault-type × severity sub-clusters without ever
+seeing a severity label. It outperforms SpectCent on 16-class ARI because
+spectral centroid separates fault *type* while skewness separates fault
+*severity stage*.
+
+### RMS → Best compact clusters (min f1, K=10)
+
+RMS = √(mean(x²)) is total vibrational energy. Energy scales monotonically with
+fault severity across all fault types, creating distinct energy bands per severity
+level. The compact solution achieves tight geometry (low TWCSS) with K=10 tight
+energy-band clusters. Lower 4-class ARI (0.3595) because energy alone cannot
+separate fault types at the same severity level.
 
 ---
 
 ## 7. Three Representative Solutions
 
-### 7a. Best 4-Class ARI (idx=0) — Edge deployment
+### 7a. Best 4-Class ARI (idx=0) — Fault type detection
 
 | Property | Value |
 |---|---|
@@ -295,13 +269,12 @@ spectrally similar at 7 mil severity. This is correct physics.
 | 4-class ARI | **0.4420** |
 | 16-class ARI | 0.2068 |
 | Silhouette | 0.8377 |
-| f1 Compactness | 0.09567 (highest — loosest clusters, maximises separation) |
+| f1 Compactness | 0.09567 (loosest — maximises inter-cluster separation) |
 | f2 Connectedness | **0.000** (perfect kNN coherence) |
 | f3 Simplicity | **1** feature |
 
-**Use case**: Edge IoT node with a single accelerometer. Compute FFT → Spectral
-Centroid → compare to threshold. No machine learning inference required on the
-device. Battery life is not affected. **Achieves 44% ARI with one division.**
+**Use case**: Edge IoT with a single accelerometer. Compute FFT → Spectral
+Centroid → threshold. No on-device inference required. 44% ARI with one statistic.
 
 ---
 
@@ -309,46 +282,41 @@ device. Battery life is not affected. **Achieves 44% ARI with one division.**
 
 | Property | Value |
 |---|---|
-| Active feature | **Spectral Centroid only** |
+| Active feature | **Skewness only** |
 | K | 9 |
 | 4-class ARI | 0.4251 |
 | 16-class ARI | **0.5812** |
 | Silhouette | 0.6366 |
-| f1 Compactness | 0.00556 (tight — 9 compact sub-clusters) |
+| f1 Compactness | 0.00556 (tight — 9 compact severity sub-clusters) |
 | f2 Connectedness | 0.0515 |
 | f3 Simplicity | 1 feature |
 
-**Use case**: Condition monitoring historian. K=9 clusters map to fault
-type × severity stage. Trending a bearing's cluster membership over time reveals
-*degradation trajectory* — a bearing migrating from cluster 2 to cluster 6 is
-progressing from 7-mil to 21-mil IR fault, enabling proactive maintenance
-scheduling before catastrophic failure. This is the foundation of **Remaining
-Useful Life (RUL) estimation**.
+**Use case**: Condition monitoring historian. K=9 maps to fault type × severity
+stage. Trending cluster membership over time reveals degradation trajectory —
+a bearing migrating from cluster 2 → cluster 6 is progressing from 7-mil to
+21-mil IR fault. Foundation of **Remaining Useful Life (RUL) estimation**.
 
 ---
 
-### 7c. Knee Point (idx=19) — Balanced compromise
+### 7c. Knee Point (idx=109) — Balanced compromise
 
 | Property | Value |
 |---|---|
-| Active feature | **Std Dev only** |
+| Active feature | **Skewness only** |
 | K | 7 |
-| 4-class ARI | 0.1292 |
-| 16-class ARI | 0.2760 |
-| Silhouette | 0.7220 |
-| f1 Compactness | 0.01176 |
-| f2 Connectedness | 0.00999 |
+| 4-class ARI | 0.1334 |
+| 16-class ARI | 0.2806 |
+| Silhouette | 0.7171 |
+| f1 Compactness | 0.01527 |
+| f2 Connectedness | 0.00898 |
 | f3 Simplicity | 1 feature |
 
-The knee is mathematically balanced across all three normalised objectives, but
-Std Dev is less fault-specific than Spectral Centroid — it captures *overall
-energy dispersion*, which overlaps heavily between fault types. **The knee is
-not the best engineering solution**; it is simply the most geometrically
-balanced point on the Pareto front.
+The knee is mathematically balanced across all three normalised objectives.
+Skewness at K=7 gives 4 fault types × early/late severity + Normal — geometrically
+balanced but not the best engineering solution.
 
-> **Lesson**: Always evaluate the knee point against domain metrics (ARI)
-> before trusting it as the "best" solution. Mathematical balance ≠ engineering
-> optimality.
+> **Lesson**: Mathematical balance ≠ engineering optimality. Always evaluate the
+> knee against domain metrics (ARI) before treating it as "best".
 
 ---
 
@@ -358,28 +326,25 @@ balanced point on the Pareto front.
 One NSGA-II run  →  full trade-off spectrum  →  engineer chooses based on deployment context
 ```
 
-| Decision | Solution | Feature | K | ARI | Use Case |
+| Decision | Solution | Feature | K | ARI4 | Use Case |
 |---|---|---|---|---|---|
-| **Fault detection** | Best ARI | Spectral Centroid | 3 | 0.4420 | Threshold alarm on SC |
-| **Severity tracking** | Best 16-cls | Spectral Centroid | 9 | 0.5812 | Degradation trajectory |
-| **Energy monitoring** | Compact (min f1) | Std Dev | 10 | 0.3543 | Amplitude-based wear index |
-| **Full analysis** | 3-feature solution | RMS + SC + Std Dev | varies | 0.4294 | Lab / SCADA integration |
-
-### The spectrum at a glance
+| **Fault detection** | Best ARI4 | Spectral Centroid | 3 | 0.4420 | SC threshold alarm |
+| **Severity tracking** | Best ARI16 | Skewness | 9 | 0.4251 | Degradation trajectory |
+| **Energy monitoring** | Compact (min f1) | RMS | 10 | 0.3595 | Amplitude wear index |
+| **Full analysis** | 3-feature solutions | RMS + Skew + SC | varies | 0.4294 | SCADA integration |
 
 ```
-f3=1, K=3  →  Simplest. Fastest. 1 sensor, 1 FFT, 3 clusters. ARI=0.44.
-                ↑ best for: edge nodes, battery devices, cost-critical sites
+SpectCent, K=3  →  Best fault-type detection. 1 FFT stat, 3 clusters. ARI4=0.44.
+                    ↑ edge nodes, battery devices, cost-critical sites
 
-f3=1, K=9  →  Same sensor cost. More clusters. Catches severity sub-stages.
-                ↑ best for: historians, RUL trending, maintenance scheduling
+Skewness,  K=9  →  Best severity tracking. Same sensor cost. ARI16=0.58.
+                    ↑ historians, RUL trending, maintenance scheduling
 
-f3=1, K=10 →  Maximum compactness. Tightest clusters. Best geometry.
-                ↑ best for: root-cause analysis, lab verification
+RMS,       K=10 →  Tightest compact clusters. Best geometry.
+                    ↑ root-cause analysis, lab verification
 
-f3=3, K=?  →  More features, comparable ARI. For when you need interpretability
-               across multiple dimensions (e.g., regulatory audit requirements).
-                ↑ best for: documented fault evidence
+3 features, K=? →  Multi-dimensional interpretability. Comparable ARI.
+                    ↑ regulatory evidence, documented fault reports
 ```
 
 ---
@@ -389,43 +354,152 @@ f3=3, K=?  →  More features, comparable ARI. For when you need interpretabilit
 | Factor | v1 | v2 | Impact |
 |---|---|---|---|
 | Scaler | Global (1 scaler) | Per-load (4 scalers) | **Primary driver** of ARI gain |
-| OR imbalance | 3,324 segs (38%) | 474 segs (8%) | Removes kNN bias |
-| Evaluation label | 4-class | 4-class + 16-class | Reveals hidden structure |
+| OR imbalance | 3,324 segs (38%) | 1,893 segs (25.8%) | Removes kNN bias |
+| Evaluation label | 4-class only | 4-class + 16-class | Reveals hidden structure |
 | Population | 150 | 200 | Denser Pareto front |
 | Generations | 100 | 200 | Better centroid refinement |
-| Best feature | RMS + SC (2 feat) | SC only (1 feat) | Load norm makes SC sufficient alone |
+| Best-ARI feature | RMS + SC (2 feat) | SC only (1 feat) | Load norm makes SC sufficient alone |
 
-The improvement from 2 features → 1 feature is not a reduction in model
-complexity — it is a **signal quality improvement**. When load-induced noise is
-removed, the fault-induced frequency shift is so dominant that RMS (energy level)
-becomes redundant alongside SC. The data is fundamentally cleaner.
+The shift from 2 features → 1 feature is a **signal quality improvement**, not
+a model reduction. When load noise is removed, SC's fault-frequency shift is so
+dominant that RMS becomes redundant. Cleaner data → sparser optimal solution.
 
 ---
 
-## 10. Remaining Limitations
+## 10. Mechanical Significance of the Results
+
+### Three features, three physical phenomena
+
+**Spectral Centroid (best fault-type separation)**: Each bearing fault type
+excites energy at its characteristic frequency (BPFI=158 Hz for IR, BPFO=105 Hz
+for OR, BSF=69 Hz for Ball). This concentrates spectral energy at lower
+fault-specific frequencies, pulling the centroid downward from the healthy
+baseline. After per-load normalisation eliminates the RPM-induced drift (~30 Hz),
+the fault-induced shift (hundreds of Hz) is the dominant signal. K=3 is enough
+for fault-type detection because each type has a distinct centroid region.
+
+**Skewness (best severity separation)**: Fault impacts create one-sided waveform
+spikes — rolling elements sharply decelerate on defect contact, producing a
+positive impulse. The magnitude of this asymmetry scales with spall size and
+Hertzian contact force. Larger defect = stronger impact = higher skewness. This
+makes skewness a natural severity metric: it rises monotonically with damage
+progression within each fault type. K=9 Skewness clusters are effectively
+unsupervised fault sizing.
+
+**RMS (best compact clusters)**: Total vibrational energy scales with fault
+severity across all types, creating monotone energy bands. K=10 tight energy-band
+clusters give the best geometric compactness (lowest TWCSS) but cannot separate
+fault types at the same severity level.
+
+### K=10 clusters with 4 fault types — the algorithm is doing fault sizing
+
+The 16-class ARI (0.5812) significantly exceeds the 4-class ARI (0.4420). The
+algorithm never saw a severity label. It discovered fault-type × fault-size
+sub-structure from single features: Skewness for severity, SpectCent for type.
+The physical reason: a 28-mil spall creates fundamentally different impulse
+patterns than a 7-mil spall — different spectral content, asymmetry magnitude,
+and energy level, all proportionally scaled with defect size.
+
+### OR is mechanically the hardest to cluster
+
+OR fault was recorded at three mounting positions: @3 (12 o'clock, unloaded),
+@6 (3 o'clock, transition), @12 (6 o'clock, maximum load zone). Hertzian contact
+force is highest in the loaded zone — the same 7-mil spall generates much stronger
+impacts at @12 than at @3. The identical fault type produces fundamentally
+different vibration signatures depending on defect position within the load zone.
+This intra-class variance is a hidden variable that single vibration statistics
+cannot resolve without a shaft-angle encoder.
+
+### The one-sentence physical summary
+
+> After removing load-condition amplitude shifts, a bearing fault's waveform
+> asymmetry (Skewness) captures severity progression while its spectral frequency
+> shift (SpectCent) captures fault type — and together, these two single-feature
+> representations stratify 12 distinct fault-severity states without labels,
+> because each defect creates physically distinct impulse patterns that scale with
+> spall size and contact zone position.
+
+---
+
+## 11. Drive End vs Fan End: Scope and Generalisability
+
+All results are for the **Drive End bearing (SKF 6205-2RS)**. The CWRU dataset
+also contains Fan End data (SKF 6203-2RS) — a fundamentally different measurement.
+
+### The mechanical difference
+
+| Property | Drive End (6205-2RS) | Fan End (6203-2RS) |
+|---|---|---|
+| Balls | 9 | 8 |
+| Pitch diameter | 38.5 mm | 28.5 mm |
+| Ball diameter | 7.94 mm | 6.75 mm |
+| BPFI multiplier | 5.415 × f_r | 4.947 × f_r |
+| BPFO multiplier | 3.585 × f_r | 3.053 × f_r |
+| BSF multiplier | 2.357 × f_r | 1.994 × f_r |
+| Load source | Dynamometer + rotor weight | Rotor weight only |
+| Accelerometer path | Bearing housing directly (~3 cm) | Through motor end-cap and housing |
+| Contamination | Minimal | Motor EM interference (120 Hz harmonics) |
+
+### Hypotheses for Fan End results
+
+**H1 — Skewness survives; RMS weakens.** Lower contact force → weaker impacts →
+lower absolute energy. RMS loses discriminative power. Skewness (dimensionless,
+impulsiveness-based) is less sensitive to contact force magnitude and likely
+remains on the Pareto front.
+
+**H2 — SpectCent loses effectiveness.** Motor EM noise at 120 Hz harmonics
+overlaps with BPFO (3.053×f_r ≈ 87 Hz at 1750 RPM) and BSF (1.994×f_r ≈ 58 Hz)
+ranges. The centroid becomes noisier, reducing its fault-type separation.
+
+**H3 — f3 range widens (2–4 features).** Lower SNR → more features needed to
+achieve comparable cluster quality. Crest Factor may enter the Pareto front.
+
+**H4 — FIX-1 matters less.** FE carries no dynamometer load — only shaft speed
+changes slightly with HP setting. Per-load amplitude variation is smaller; the
+normalisation improvement would be smaller.
+
+**H5 — OR simpler, Ball harder.** CWRU FE only records OR@6 (no @3, @12 since
+load direction is undefined at FE). OR clustering is simpler — no intra-class
+position variance. Ball fault at FE: BSF=1.994×f_r is closer to shaft harmonics,
+harder to isolate spectrally.
+
+**H6 — Optimal K shrinks to 6–8.** Fewer OR sub-clusters and weaker severity
+discrimination → fewer natural groupings.
+
+### Why this matters
+
+Our SpectCent/Skewness dominance and f3=1 are **Drive End specific** — high SNR,
+high contact force, short transmission path. Running the same pipeline on FE data
+tests whether sparse-feature sufficiency is universal or a measurement-quality
+effect, which is itself a mechanically interpretable finding.
+
+---
+
+## 12. Remaining Limitations
 
 | Limitation | Root cause | Potential fix |
 |---|---|---|
-| IR and Ball merge at K=3 | Both shift centroid downward; spectrally similar at low severity | Use BPFI/BSF ratio instead of raw SC; needs RPM signal |
-| ARI capped ~0.44 (4-class) | K=3 is optimal for 1-feature; can't split IR+Ball | Add 2nd feature (kurtosis discriminates early IR vs Ball) |
-| OR severely under-represented after balancing | 3 mounting positions × 4 sizes — data sparsity after undersampling | Collect equal OR data at one position, or use oversampling (SMOTE) |
-| f3 range still [1,3] | 1-feature solutions dominate because they are genuinely better | This is correct; extended range would require features that have a *positive* trade-off, which doesn't exist here |
-| Load effect on spectral centroid not fully removed | Per-load normalisation removes amplitude effect; RPM shift (~30 Hz) remains | Compute fault frequencies analytically from RPM signal and use ratio features |
+| IR and Ball merge at K=3 (SpectCent) | BPFI (158 Hz) and BSF (69 Hz) both pull centroid downward | Use BPFI/BSF frequency ratio; needs RPM signal |
+| 4-class ARI capped ~0.44 | K=3 optimal for SpectCent; cannot split IR+Ball | Add Skewness as 2nd feature — separates early IR vs Ball differently |
+| OR intra-class variance | 3 mounting positions → same fault type at @3 vs @12 looks different | Collect equal OR data at one position; or add load-zone indicator |
+| f3 range only [1,3] | 1-feature solutions dominate because they are genuinely better post-normalisation | Correct — extended range requires features with positive trade-off, which doesn't exist here |
+| RPM shift not fully removed | Per-load normalisation removes amplitude; 1797→1730 RPM shifts fault frequencies ~2% | Compute fault frequencies from RPM signal analytically; use ratio features |
 
 ---
 
-## 11. Files Reference
+## 13. Files Reference
 
 | File | Description |
 |---|---|
 | [moc_bearing_v2.py](moc_bearing_v2.py) | Fixed pipeline (FIX-1/2/3 + history callback) |
 | [moc_results_v2/summary_v2.json](moc_results_v2/summary_v2.json) | Machine-readable results |
-| [moc_results_v2/pareto_3d_rotating.gif](moc_results_v2/pareto_3d_rotating.gif) | Fixed 360° rotating GIF |
-| [moc_results_v2/pareto_3d_interactive.html](moc_results_v2/pareto_3d_interactive.html) | Rotatable Plotly — v2 ARI values |
+| [moc_results_v2/run.log](moc_results_v2/run.log) | Full run log with per-file loading details |
+| [moc_results_v2/gen_stats.json](moc_results_v2/gen_stats.json) | Per-generation convergence data (200 gens) |
+| [moc_results_v2/pareto_3d_rotating.gif](moc_results_v2/pareto_3d_rotating.gif) | 360° rotating GIF |
+| [moc_results_v2/pareto_3d_interactive.html](moc_results_v2/pareto_3d_interactive.html) | Rotatable Plotly HTML |
 | [moc_results_v2/history/](moc_results_v2/history/) | Population snapshots at 10 generations |
-| [moc_results_v2/gen_stats.json](moc_results_v2/gen_stats.json) | Per-generation convergence data |
 | [moc_results_v2/pareto_ari16.npy](moc_results_v2/pareto_ari16.npy) | 16-class ARI per Pareto solution |
 
 ---
 
-*MOC-FS v2 — NSGA-II · CWRU 12 kHz Drive End · RTX 5090 · 120 s end-to-end*
+*MOC-FS v2 — NSGA-II · CWRU 12 kHz Drive End · SKF 6205-2RS · RTX 5090 · 125 s end-to-end*
