@@ -1,0 +1,52 @@
+{
+  "dataset": {
+    "n_segments": 8767,
+    "n_features": 7,
+    "class_dist": {
+      "Normal": 1656,
+      "Inner Race": 1893,
+      "Ball": 1894,
+      "Outer Race": 3324
+    }
+  },
+  "nsga2": {
+    "pop_size": 150,
+    "n_gen": 100,
+    "n_pareto": 150,
+    "opt_time_s": 15.32
+  },
+  "metrics": {
+    "ari_mean": 0.1137,
+    "ari_max": 0.3014,
+    "sil_mean": 0.6714,
+    "sil_max": 0.8288
+  },
+  "knee": {
+    "K": 9,
+    "ari": 0.0323,
+    "sil": 0.6677,
+    "active": [
+      "Std Dev"
+    ]
+  },
+  "simple": {
+    "K": 4,
+    "n_feat": 2,
+    "ari": 0.3014,
+    "sil": 0.6239,
+    "active": [
+      "RMS",
+      "Spectral Centroid"
+    ]
+  },
+  "compact": {
+    "K": 8,
+    "n_feat": 1,
+    "ari": 0.2473,
+    "sil": 0.6535,
+    "active": [
+      "Spectral Centroid"
+    ]
+  },
+  "total_time_s": 55.48
+}
