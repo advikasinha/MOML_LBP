@@ -1,0 +1,47 @@
+{
+  "v": 2,
+  "fixes": [
+    "per-load-normalisation",
+    "class-balancing",
+    "severity-labels"
+  ],
+  "dataset": {
+    "n_balanced": 7335,
+    "n_classes_16": 12
+  },
+  "optimizer": {
+    "name": "lhfid",
+    "pop": 200,
+    "gen": 200,
+    "time_s": 427.92
+  },
+  "metrics": {
+    "ari4_max": 0.3049,
+    "ari16_max": 0.35,
+    "sil_max": 0.8135
+  },
+  "pareto": {
+    "n": 116,
+    "f3_range": [
+      1,
+      2
+    ]
+  },
+  "simple": {
+    "K": 3,
+    "nfeat": 1,
+    "ari4": 0.3049,
+    "active": [
+      "Spectral Centroid"
+    ]
+  },
+  "compact": {
+    "K": 10,
+    "nfeat": 1,
+    "ari4": 0.2656,
+    "active": [
+      "Spectral Centroid"
+    ]
+  },
+  "total_s": 536.25
+}
