@@ -1,3 +1,21 @@
+# Workflow
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/f6493b0e-bb25-40b0-a969-dc3faf4c4c31" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------
+
 # Optimizer Comparison: NSGA-II vs. LHFiD
 
 multi-objective clustering experiment using **NSGA-II** (baseline) and **LHFiD** (Localized High-Fidelity Dominance). Both algorithms were run with a population size of 200 over 200 generations.
