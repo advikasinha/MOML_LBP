@@ -1,0 +1,211 @@
+2026-04-01 08:25:07,744  INFO      ======================================================================
+2026-04-01 08:25:07,744  INFO        MOC-FS v2  |  optimizer=LHFID  pop=200  gen=200  fixes: load-norm + balance
+2026-04-01 08:25:07,744  INFO      ======================================================================
+2026-04-01 08:25:07,744  INFO      
+[1] Loading CWRU dataset (v2)…
+2026-04-01 08:25:08,430  INFO        [Normal]  100_Normal_3.mat              load=3    474 seg
+2026-04-01 08:25:08,760  INFO        [Normal]  97_Normal_0.mat               load=0    238 seg
+2026-04-01 08:25:09,400  INFO        [Normal]  98_Normal_1.mat               load=1    472 seg
+2026-04-01 08:25:10,096  INFO        [Normal]  99_Normal_2.mat               load=2    472 seg
+2026-04-01 08:25:10,269  INFO        [IR 007]  105_0.mat                     load=0    118 seg
+2026-04-01 08:25:10,443  INFO        [IR 007]  106_1.mat                     load=1    119 seg
+2026-04-01 08:25:10,617  INFO        [IR 007]  107_2.mat                     load=2    119 seg
+2026-04-01 08:25:10,794  INFO        [IR 007]  108_3.mat                     load=3    120 seg
+2026-04-01 08:25:10,965  INFO        [IR 014]  169_0.mat                     load=0    118 seg
+2026-04-01 08:25:11,137  INFO        [IR 014]  170_1.mat                     load=1    118 seg
+2026-04-01 08:25:11,301  INFO        [IR 014]  171_2.mat                     load=2    118 seg
+2026-04-01 08:25:11,466  INFO        [IR 014]  172_3.mat                     load=3    118 seg
+2026-04-01 08:25:11,632  INFO        [IR 021]  209_0.mat                     load=0    119 seg
+2026-04-01 08:25:11,796  INFO        [IR 021]  210_1.mat                     load=1    118 seg
+2026-04-01 08:25:11,963  INFO        [IR 021]  211_2.mat                     load=2    118 seg
+2026-04-01 08:25:12,124  INFO        [IR 021]  212_3.mat                     load=3    119 seg
+2026-04-01 08:25:12,281  INFO        [IR 028]  3001_0.mat                    load=0    117 seg
+2026-04-01 08:25:12,439  INFO        [IR 028]  3002_1.mat                    load=1    118 seg
+2026-04-01 08:25:12,604  INFO        [IR 028]  3003_2.mat                    load=2    118 seg
+2026-04-01 08:25:12,762  INFO        [IR 028]  3004_3.mat                    load=3    118 seg
+2026-04-01 08:25:12,922  INFO        [B  007]  118_0.mat                     load=0    119 seg
+2026-04-01 08:25:13,082  INFO        [B  007]  119_1.mat                     load=1    118 seg
+2026-04-01 08:25:13,256  INFO        [B  007]  120_2.mat                     load=2    118 seg
+2026-04-01 08:25:13,429  INFO        [B  007]  121_3.mat                     load=3    118 seg
+2026-04-01 08:25:13,602  INFO        [B  014]  185_0.mat                     load=0    118 seg
+2026-04-01 08:25:13,777  INFO        [B  014]  186_1.mat                     load=1    119 seg
+2026-04-01 08:25:13,951  INFO        [B  014]  187_2.mat                     load=2    119 seg
+2026-04-01 08:25:14,119  INFO        [B  014]  188_3.mat                     load=3    119 seg
+2026-04-01 08:25:14,286  INFO        [B  021]  222_0.mat                     load=0    119 seg
+2026-04-01 08:25:14,450  INFO        [B  021]  223_1.mat                     load=1    118 seg
+2026-04-01 08:25:14,616  INFO        [B  021]  224_2.mat                     load=2    119 seg
+2026-04-01 08:25:14,778  INFO        [B  021]  225_3.mat                     load=3    119 seg
+2026-04-01 08:25:14,935  INFO        [B  028]  3005_0.mat                    load=0    117 seg
+2026-04-01 08:25:15,092  INFO        [B  028]  3006_1.mat                    load=1    118 seg
+2026-04-01 08:25:15,250  INFO        [B  028]  3007_2.mat                    load=2    118 seg
+2026-04-01 08:25:15,407  INFO        [B  028]  3008_3.mat                    load=3    118 seg
+2026-04-01 08:25:15,567  INFO        [OR 007]  156_0.mat                     load=0    119 seg
+2026-04-01 08:25:15,728  INFO        [OR 007]  158_1.mat                     load=1    119 seg
+2026-04-01 08:25:15,901  INFO        [OR 007]  159_2.mat                     load=2    119 seg
+2026-04-01 08:25:16,073  INFO        [OR 007]  160_3.mat                     load=3    119 seg
+2026-04-01 08:25:16,243  INFO        [OR 007]  144_0.mat                     load=0    119 seg
+2026-04-01 08:25:16,412  INFO        [OR 007]  145_1.mat                     load=1    118 seg
+2026-04-01 08:25:16,577  INFO        [OR 007]  146_2.mat                     load=2    118 seg
+2026-04-01 08:25:16,745  INFO        [OR 007]  147_3.mat                     load=3    119 seg
+2026-04-01 08:25:16,913  INFO        [OR 007]  130@6_0.mat                   load=0    119 seg
+2026-04-01 08:25:17,079  INFO        [OR 007]  131@6_1.mat                   load=1    119 seg
+2026-04-01 08:25:17,239  INFO        [OR 007]  132@6_2.mat                   load=2    118 seg
+2026-04-01 08:25:17,400  INFO        [OR 007]  133@6_3.mat                   load=3    119 seg
+2026-04-01 08:25:17,559  INFO        [OR 014]  197@6_0.mat                   load=0    118 seg
+2026-04-01 08:25:17,719  INFO        [OR 014]  198@6_1.mat                   load=1    119 seg
+2026-04-01 08:25:17,878  INFO        [OR 014]  199@6_2.mat                   load=2    118 seg
+2026-04-01 08:25:18,037  INFO        [OR 014]  200@6_3.mat                   load=3    119 seg
+2026-04-01 08:25:18,198  INFO        [OR 021]  258_0.mat                     load=0    118 seg
+2026-04-01 08:25:18,374  INFO        [OR 021]  259_1.mat                     load=1    119 seg
+2026-04-01 08:25:18,548  INFO        [OR 021]  260_2.mat                     load=2    119 seg
+2026-04-01 08:25:18,718  INFO        [OR 021]  261_3.mat                     load=3    118 seg
+2026-04-01 08:25:18,884  INFO        [OR 021]  246_0.mat                     load=0    118 seg
+2026-04-01 08:25:19,051  INFO        [OR 021]  247_1.mat                     load=1    119 seg
+2026-04-01 08:25:19,218  INFO        [OR 021]  248_2.mat                     load=2    119 seg
+2026-04-01 08:25:19,384  INFO        [OR 021]  249_3.mat                     load=3    119 seg
+2026-04-01 08:25:19,545  INFO        [OR 021]  234_0.mat                     load=0    119 seg
+2026-04-01 08:25:19,706  INFO        [OR 021]  235_1.mat                     load=1    119 seg
+2026-04-01 08:25:19,869  INFO        [OR 021]  236_2.mat                     load=2    119 seg
+2026-04-01 08:25:20,028  INFO        [OR 021]  237_3.mat                     load=3    119 seg
+2026-04-01 08:25:20,028  INFO      Total raw: 8767 segments × 7 features.
+2026-04-01 08:25:20,030  INFO        Class 0 (Normal): 1656 segs
+2026-04-01 08:25:20,030  INFO        Class 1 (Inner Race): 1893 segs
+2026-04-01 08:25:20,030  INFO        Class 2 (Ball): 1894 segs
+2026-04-01 08:25:20,030  INFO        Class 3 (Outer Race): 3324 segs
+2026-04-01 08:25:20,030  INFO      
+[FIX-1] Per-load normalisation…
+2026-04-01 08:25:20,035  INFO        Done. Shape: (8767, 7)
+2026-04-01 08:25:20,035  INFO      
+[FIX-2] Balancing classes…
+2026-04-01 08:25:20,036  INFO      After balancing: 7335 segments (target per class ≈ 1893)
+2026-04-01 08:25:20,036  INFO        Class 0 (Normal): 1656
+2026-04-01 08:25:20,036  INFO        Class 1 (Inner Race): 1893
+2026-04-01 08:25:20,037  INFO        Class 2 (Ball): 1893
+2026-04-01 08:25:20,037  INFO        Class 3 (Outer Race): 1893
+2026-04-01 08:25:20,039  INFO      [FIX-3] 16-class label: 12 distinct severity-fault classes.
+2026-04-01 08:25:20,039  INFO      
+[2] Building kNN graph (k=10)…
+2026-04-01 08:25:20,378  INFO        kNN built in 0.34 s.
+2026-04-01 08:25:20,379  INFO      
+[3] Running LHFID  (pop=200, gen=200)…
+2026-04-01 08:25:20,383  INFO        Hybrid init: KMeans-seeded (66)…
+2026-04-01 08:25:22,363  INFO        Hybrid init: data-point seeded (66)…
+2026-04-01 08:25:22,368  INFO        Hybrid init: pure random (68)…
+2026-04-01 08:25:23,086  INFO        Hybrid init: KMeans-seeded (66)…
+2026-04-01 08:25:25,118  INFO        Hybrid init: data-point seeded (66)…
+2026-04-01 08:25:25,122  INFO        Hybrid init: pure random (68)…
+2026-04-01 08:25:25,842  INFO        [Gen   1] Snapshot saved (200 valid solutions).
+2026-04-01 08:25:29,038  INFO        [Gen   5] Snapshot saved (165 valid solutions).
+2026-04-01 08:25:32,490  INFO        [Gen  10] Snapshot saved (165 valid solutions).
+2026-04-01 08:25:38,857  INFO        [Gen  20] Snapshot saved (165 valid solutions).
+2026-04-01 08:25:48,477  INFO        [Gen  35] Snapshot saved (165 valid solutions).
+2026-04-01 08:25:57,839  INFO        [Gen  50] Snapshot saved (165 valid solutions).
+2026-04-01 08:26:14,193  INFO        [Gen  75] Snapshot saved (165 valid solutions).
+2026-04-01 08:26:31,437  INFO        [Gen 100] Snapshot saved (165 valid solutions).
+2026-04-01 08:27:08,862  INFO        [Gen 150] Snapshot saved (165 valid solutions).
+2026-04-01 08:27:48,382  INFO        [Gen 200] Snapshot saved (165 valid solutions).
+2026-04-01 08:35:04,268  INFO      Optimisation done in 583.9 s (9.7 min).
+2026-04-01 08:35:04,269  INFO      
+[4] Pareto front analysis…
+2026-04-01 08:35:04,269  INFO        107 Pareto solutions
+2026-04-01 08:35:04,269  INFO        f1 Compactness: [0.0095, 1.2524]
+2026-04-01 08:35:04,269  INFO        f2 Connectedness: [0.0000, 0.0888]
+2026-04-01 08:35:04,269  INFO        f3 Simplicity: [1.0000, 2.0000]
+2026-04-01 08:35:04,269  INFO        f4 Partition Entropy: [0.0356, 0.3013]
+2026-04-01 08:35:04,269  INFO        Knee: K=2  active=[np.str_('Spectral Centroid')]  idx=14
+2026-04-01 08:35:04,269  INFO      
+[5] Validation metrics…
+2026-04-01 08:36:20,704  INFO        4-class ARI — mean 0.0517 | max 0.3680 | knee 0.3049
+2026-04-01 08:36:20,704  INFO        16-class ARI— mean 0.0975 | max 0.5166
+2026-04-01 08:36:20,704  INFO        Silhouette  — mean 0.7285 | max 0.8435
+2026-04-01 08:36:20,705  INFO      
+  Simple  [1 feat, K=9]: ARI=0.3680 → [np.str_('Std Dev')]
+2026-04-01 08:36:20,705  INFO        Compact [1 feat, K=10]: ARI=0.2855 → [np.str_('RMS')]
+2026-04-01 08:36:20,705  INFO      
+[6] Generating visualisations…
+2026-04-01 08:36:21,123  INFO        Saved: moc_results_entropy/01_pareto_3d_v2.png
+2026-04-01 08:36:21,396  INFO        Saved: moc_results_entropy/02_feature_importance_v2.png
+2026-04-01 08:36:22,025  INFO        Saved: moc_results_entropy/00_convergence_v2.png
+2026-04-01 08:36:22,758  INFO        Saved: moc_results_entropy/03_cluster_simple_v2.png
+2026-04-01 08:36:28,587  INFO        Saved: moc_results_entropy/04_cluster_compact_v2.png
+2026-04-01 08:36:28,587  INFO      
+[7] Saving arrays to moc_results_entropy/…
+2026-04-01 08:36:29,355  INFO        [Normal]  100_Normal_3.mat              load=3    474 seg
+2026-04-01 08:36:29,727  INFO        [Normal]  97_Normal_0.mat               load=0    238 seg
+2026-04-01 08:36:30,379  INFO        [Normal]  98_Normal_1.mat               load=1    472 seg
+2026-04-01 08:36:31,086  INFO        [Normal]  99_Normal_2.mat               load=2    472 seg
+2026-04-01 08:36:31,290  INFO        [IR 007]  105_0.mat                     load=0    118 seg
+2026-04-01 08:36:31,488  INFO        [IR 007]  106_1.mat                     load=1    119 seg
+2026-04-01 08:36:31,660  INFO        [IR 007]  107_2.mat                     load=2    119 seg
+2026-04-01 08:36:31,838  INFO        [IR 007]  108_3.mat                     load=3    120 seg
+2026-04-01 08:36:32,009  INFO        [IR 014]  169_0.mat                     load=0    118 seg
+2026-04-01 08:36:32,179  INFO        [IR 014]  170_1.mat                     load=1    118 seg
+2026-04-01 08:36:32,340  INFO        [IR 014]  171_2.mat                     load=2    118 seg
+2026-04-01 08:36:32,500  INFO        [IR 014]  172_3.mat                     load=3    118 seg
+2026-04-01 08:36:32,678  INFO        [IR 021]  209_0.mat                     load=0    119 seg
+2026-04-01 08:36:32,856  INFO        [IR 021]  210_1.mat                     load=1    118 seg
+2026-04-01 08:36:33,029  INFO        [IR 021]  211_2.mat                     load=2    118 seg
+2026-04-01 08:36:33,204  INFO        [IR 021]  212_3.mat                     load=3    119 seg
+2026-04-01 08:36:33,371  INFO        [IR 028]  3001_0.mat                    load=0    117 seg
+2026-04-01 08:36:33,540  INFO        [IR 028]  3002_1.mat                    load=1    118 seg
+2026-04-01 08:36:33,705  INFO        [IR 028]  3003_2.mat                    load=2    118 seg
+2026-04-01 08:36:33,871  INFO        [IR 028]  3004_3.mat                    load=3    118 seg
+2026-04-01 08:36:34,032  INFO        [B  007]  118_0.mat                     load=0    119 seg
+2026-04-01 08:36:34,191  INFO        [B  007]  119_1.mat                     load=1    118 seg
+2026-04-01 08:36:34,356  INFO        [B  007]  120_2.mat                     load=2    118 seg
+2026-04-01 08:36:34,533  INFO        [B  007]  121_3.mat                     load=3    118 seg
+2026-04-01 08:36:34,708  INFO        [B  014]  185_0.mat                     load=0    118 seg
+2026-04-01 08:36:34,884  INFO        [B  014]  186_1.mat                     load=1    119 seg
+2026-04-01 08:36:35,051  INFO        [B  014]  187_2.mat                     load=2    119 seg
+2026-04-01 08:36:35,217  INFO        [B  014]  188_3.mat                     load=3    119 seg
+2026-04-01 08:36:35,384  INFO        [B  021]  222_0.mat                     load=0    119 seg
+2026-04-01 08:36:35,548  INFO        [B  021]  223_1.mat                     load=1    118 seg
+2026-04-01 08:36:35,709  INFO        [B  021]  224_2.mat                     load=2    119 seg
+2026-04-01 08:36:35,873  INFO        [B  021]  225_3.mat                     load=3    119 seg
+2026-04-01 08:36:36,029  INFO        [B  028]  3005_0.mat                    load=0    117 seg
+2026-04-01 08:36:36,190  INFO        [B  028]  3006_1.mat                    load=1    118 seg
+2026-04-01 08:36:36,369  INFO        [B  028]  3007_2.mat                    load=2    118 seg
+2026-04-01 08:36:36,540  INFO        [B  028]  3008_3.mat                    load=3    118 seg
+2026-04-01 08:36:36,712  INFO        [OR 007]  156_0.mat                     load=0    119 seg
+2026-04-01 08:36:36,882  INFO        [OR 007]  158_1.mat                     load=1    119 seg
+2026-04-01 08:36:37,050  INFO        [OR 007]  159_2.mat                     load=2    119 seg
+2026-04-01 08:36:37,218  INFO        [OR 007]  160_3.mat                     load=3    119 seg
+2026-04-01 08:36:37,392  INFO        [OR 007]  144_0.mat                     load=0    119 seg
+2026-04-01 08:36:37,559  INFO        [OR 007]  145_1.mat                     load=1    118 seg
+2026-04-01 08:36:37,729  INFO        [OR 007]  146_2.mat                     load=2    118 seg
+2026-04-01 08:36:37,906  INFO        [OR 007]  147_3.mat                     load=3    119 seg
+2026-04-01 08:36:38,095  INFO        [OR 007]  130@6_0.mat                   load=0    119 seg
+2026-04-01 08:36:38,300  INFO        [OR 007]  131@6_1.mat                   load=1    119 seg
+2026-04-01 08:36:38,478  INFO        [OR 007]  132@6_2.mat                   load=2    118 seg
+2026-04-01 08:36:38,649  INFO        [OR 007]  133@6_3.mat                   load=3    119 seg
+2026-04-01 08:36:38,819  INFO        [OR 014]  197@6_0.mat                   load=0    118 seg
+2026-04-01 08:36:38,994  INFO        [OR 014]  198@6_1.mat                   load=1    119 seg
+2026-04-01 08:36:39,170  INFO        [OR 014]  199@6_2.mat                   load=2    118 seg
+2026-04-01 08:36:39,417  INFO        [OR 014]  200@6_3.mat                   load=3    119 seg
+2026-04-01 08:36:39,605  INFO        [OR 021]  258_0.mat                     load=0    118 seg
+2026-04-01 08:36:39,791  INFO        [OR 021]  259_1.mat                     load=1    119 seg
+2026-04-01 08:36:39,977  INFO        [OR 021]  260_2.mat                     load=2    119 seg
+2026-04-01 08:36:40,162  INFO        [OR 021]  261_3.mat                     load=3    118 seg
+2026-04-01 08:36:40,335  INFO        [OR 021]  246_0.mat                     load=0    118 seg
+2026-04-01 08:36:40,513  INFO        [OR 021]  247_1.mat                     load=1    119 seg
+2026-04-01 08:36:40,685  INFO        [OR 021]  248_2.mat                     load=2    119 seg
+2026-04-01 08:36:40,869  INFO        [OR 021]  249_3.mat                     load=3    119 seg
+2026-04-01 08:36:41,048  INFO        [OR 021]  234_0.mat                     load=0    119 seg
+2026-04-01 08:36:41,210  INFO        [OR 021]  235_1.mat                     load=1    119 seg
+2026-04-01 08:36:41,395  INFO        [OR 021]  236_2.mat                     load=2    119 seg
+2026-04-01 08:36:41,576  INFO        [OR 021]  237_3.mat                     load=3    119 seg
+2026-04-01 08:36:41,577  INFO      Total raw: 8767 segments × 7 features.
+2026-04-01 08:36:41,590  INFO        summary_v2.json written.
+2026-04-01 08:36:41,590  INFO      
+======================================================================
+2026-04-01 08:36:41,590  INFO        v2 RESULTS
+2026-04-01 08:36:41,590  INFO      ======================================================================
+2026-04-01 08:36:41,590  INFO        Balanced dataset : 7335 segments
+2026-04-01 08:36:41,590  INFO        Pareto solutions : 107
+2026-04-01 08:36:41,590  INFO        4-class ARI max  : 0.3680  (v1: 0.3014)
+2026-04-01 08:36:41,590  INFO        16-class ARI max : 0.5166  (reveals severity sub-clusters)
+2026-04-01 08:36:41,590  INFO        Silhouette max   : 0.8435
+2026-04-01 08:36:41,591  INFO        Simple  solution : 1 feat, ARI=0.3680 → [np.str_('Std Dev')]
+2026-04-01 08:36:41,591  INFO        Compact solution : 1 feat, ARI=0.2855 → [np.str_('RMS')]
+2026-04-01 08:36:41,591  INFO        Total time       : 693.8 s (11.6 min)
+2026-04-01 08:36:41,591  INFO      ======================================================================

@@ -1,0 +1,47 @@
+{
+  "v": 2,
+  "fixes": [
+    "per-load-normalisation",
+    "class-balancing",
+    "severity-labels"
+  ],
+  "dataset": {
+    "n_balanced": 7335,
+    "n_classes_16": 12
+  },
+  "optimizer": {
+    "name": "nsga2",
+    "pop": 200,
+    "gen": 200,
+    "time_s": 111.31
+  },
+  "metrics": {
+    "ari4_max": 0.3785,
+    "ari16_max": 0.5173,
+    "sil_max": 0.845
+  },
+  "pareto": {
+    "n": 200,
+    "f3_range": [
+      1,
+      2
+    ]
+  },
+  "simple": {
+    "K": 10,
+    "nfeat": 1,
+    "ari4": 0.3785,
+    "active": [
+      "Std Dev"
+    ]
+  },
+  "compact": {
+    "K": 9,
+    "nfeat": 1,
+    "ari4": 0.3466,
+    "active": [
+      "Std Dev"
+    ]
+  },
+  "total_s": 273.29
+}
